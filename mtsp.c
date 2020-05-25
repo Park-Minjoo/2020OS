@@ -16,6 +16,7 @@ void write_result() ;
 int n_route = 0; // the total number of route
 int broute = 0; // best route
 int blength = 0; // best length
+bool terminate = false;//termination argument
 
 typedef struct {
 	pthread_cond_t queue_cv ;
@@ -65,7 +66,6 @@ void producer_signal_handler(int signum)
 {
 	if (signum == SIGINT) {//check the signal number is correct
 		// for each slave pid
-		kill(SIGINT, pid)
 		terminate = true ;
 	}
 }
