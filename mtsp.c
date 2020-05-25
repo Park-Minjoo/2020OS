@@ -5,9 +5,13 @@
 #include <sched.h>
 
 void consumer_signal_handler(int signum) ;
-void producer_signal_handler(int sugnum) ;
-void write_result(int n_route, int broute, int blength) ;
+void producer_signal_handler(int signum) ;
+void write_result() ;
 
+int n_route = 0; // the total number of route
+int broute = 0; // best route
+int blength = 0; // best length
+ 
 //Input
 int main(char *argv[], int argc) /*./mstp gr17.tsp 8*/
 {
@@ -18,7 +22,11 @@ int main(char *argv[], int argc) /*./mstp gr17.tsp 8*/
 	if (argc > 8) printf("the limit is 8, please try again\n"); 		
 	//initial number is smaller than 9
 	else {
-		
+		//create a producer thread and consumer threads
+		//to start parallel solving of the given TSP instance
+		//single process running multiple threads
+		pthread_t producer_thread, consumer_thread;
+			
 	}
 }
 
@@ -28,22 +36,31 @@ int main(char *argv[], int argc) /*./mstp gr17.tsp 8*/
 //terminate the program
 void consumer_signal_handler(int signum)
 {
-			
+	if (signum == SIGINT) //check the signal code is right
+	terminate = true;//terminate the child process			
 }
 
 //user raise a termination signam (ie.Ctrl+c)
 //terminate the program
-void producer_signal_handler(int sugnum)
+void producer_signal_handler(int signum)
 {
-
+	if (signum == SIGINT) {//check the signal number is correct
+		// for each slave pid
+		kill(SIGINT, pid)
+		terminate = true ;
+	}
 }
+			
 
 //print out 
 //the best solution (a route and its length) upto point
 //total number of checked/covered routes upto the point
-void write_result(int n_route, int broute, int blength)
+void write_result()
 {
 	printf("The best route is %d\n", broute);
 	printf("It's length is %d\n", blength);
 	printf("The total number of route is %d\n", n_route);
 }
+
+//Interactive user command
+
