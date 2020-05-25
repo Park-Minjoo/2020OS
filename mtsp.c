@@ -3,6 +3,11 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <sched.h>
+#include <error.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <stdbool.h>
 
 void consumer_signal_handler(int signum) ;
 void producer_signal_handler(int signum) ;
