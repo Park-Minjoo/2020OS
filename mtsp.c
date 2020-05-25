@@ -164,5 +164,16 @@ void *producer (void *ptr)
 //comsumer thread
 void *consumer(void *ptr)
 {
+	do{
+		wait(full);
+		wait(mutex);
 
+		// remove an item from buffer to nextc
+
+		signal(mutex);
+		signal(empty);
+
+		// consume the item in nextc
+
+	}while (TRUE);
 }
