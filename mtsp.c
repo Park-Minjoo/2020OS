@@ -16,6 +16,20 @@ void write_result() ;
 int n_route = 0; // the total number of route
 int broute = 0; // best route
 int blength = 0; // best length
+
+typedef struct {
+	pthread_cond_t queue_cv ;
+	pthread_cond_t dequeue_cv ;
+
+	pthread_mutex_t lock ;
+	char ** elem ;
+	int capacity ;
+	int num ; 
+	int front ;
+	int rear ;
+} bounded_buffer ;
+
+bounded_buffer * buf = 0x0 ;
  
 //Input
 int main(char *argv[], int argc) /*./mstp gr17.tsp 8*/
