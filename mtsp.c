@@ -4,3 +4,7 @@
 #include <pthread.h>
 #include <sched.h>
 
+int main(char *argv[], int argc) /*./mstp gr17.tsp 8*/
+{
+	
+}
