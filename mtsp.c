@@ -33,7 +33,53 @@ typedef struct {
 } bounded_buffer ;
 
 bounded_buffer * buf = 0x0 ;
- 
+
+void 
+bounded_buffer_init(bounded_buffer * buf, int capacity) {
+	pthread_cond_init(&(buf->queue_cv), 0x0) ;
+	pthread_cond_init(&(buf->dequeue_cv), 0x0) ;
+	pthread_mutex_init(&(buf->lock), 0x0) ;
+	buf->capacity = capacity ;
+	buf->elem = (char **) calloc(sizeof(char *), capacity) ;
+	buf->num = 0 ;
+	buf->front = 0 ;
+	buf->rear = 0 ;
+}
+
+void 
+bounded_buffer_queue(bounded_buffer * buf, char * msg) 
+{
+	pthread_mutex_lock(&(buf->lock)) ;
+		while (buf->num == buf->capacity) 
+			pthread_cond_wait(&(buf->queue_cv), &(buf->lock)) ;
+			
+		buf->elem[buf->rear] = msg ;
+		buf->rear = (buf->rear + 1) % buf->capacity ;
+		buf->num += 1 ;
+		
+		pthread_cond_signal(&(buf->dequeue_cv)) ;
+	pthread_mutex_unlock(&(buf->lock)) ;
+}
+
+char * 
+bounded_buffer_dequeue(bounded_buffer * buf) 
+{
+	char * r = 0x0 ;
+
+	pthread_mutex_lock(&(buf->lock)) ;
+		while (buf->num == 0) 
+			pthread_cond_wait(&(buf->dequeue_cv), &(buf->lock)) ;
+
+		r = buf->elem[buf->front] ;
+		buf->front = (buf->front + 1) % buf->capacity ;
+		buf->num -= 1 ;
+
+		pthread_cond_signal(&(buf->queue_cv)) ;
+	pthread_mutex_unlock(&(buf->lock)) ;
+
+	return r ;
+} 
+
 //Input
 //main thread
 int main(char *argv[], int argc) /*./mstp gr17.tsp 8*/
