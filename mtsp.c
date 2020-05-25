@@ -39,7 +39,7 @@ int main(char *argv[], int argc) /*./mstp gr17.tsp 8*/
 	//argc is the initial number of comsumer thread
 	
 	// if the initial number is larger than 8
-	if (argc > 8) printf("the limit is 8, please try again\n"); 		
+	if (argc > 8) printf("The limit of the consumer thread is 8, please try again\n"); 		
 	//initial number is smaller than 9
 	else {
 		//create a producer thread and consumer threads
