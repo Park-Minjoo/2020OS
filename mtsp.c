@@ -12,8 +12,8 @@
 void consumer_signal_handler(int signum) ;
 void producer_signal_handler(int signum) ;
 void write_result() ;
-void *producer (void *ptr)
-void *consumer(void *ptr)
+void *producer (void *ptr) ;
+void *consumer(void *ptr) ;
 
 int n_route = 0; // the total number of route
 int broute = 0; // best route
@@ -150,7 +150,15 @@ void write_result()
 //producer thread
 void *producer (void *ptr)
 {
-
+	do{
+		// produce an item in nextp
+		wait(empty);
+		wait(mutex);
+		
+		// add nextp to buffer
+		signal(mutex);
+		signal(full);
+	}while (TRUE);
 }
 
 //comsumer thread
