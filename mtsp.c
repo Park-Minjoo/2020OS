@@ -21,6 +21,8 @@ int blength = 0; // best length
 bool terminate = false;//termination argument
 int m[50][50];
 int Ncity = 0; //Number of cities
+int subtask = 0; //Number of subtasks processed so far
+int c_route = 0; //Number of checked routes
 
 typedef struct {
 	pthread_cond_t queue_cv ;
@@ -263,6 +265,7 @@ void *thread(void *name)
     pthread_t id;
     id = pthread_self();  
     printf("Thread %s id : %ud\n", (char*)name, (int)id);
-    printf("
+    printf("Number of subtasks: %d\n", subtask);
+    printf("Number of checked routes: %d\n", c_route);
 }
 
