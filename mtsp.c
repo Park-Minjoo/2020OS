@@ -93,8 +93,19 @@ int main(char *argv[], int argc) /*./mstp gr17.tsp 8*/
 	else {
 		pthread_t prod; //producer thread
 		pthread_t cons[argc]; //comsumer thread
-		int i = 0; //loop
-		
+		int i,j = 0; //for the loop
+		int t = 0; //make 2D array
+
+		//Open the file
+		FILE *fp = fopen(argv[1], "r"); 
+			//Get the integers from file
+			for (i = 0; i < city_num; i++){
+				for (j = 0; j < city_num; j++) {
+					fscanf(fp, "%d", &t);
+					m[i][j] = t;
+				}
+			}		
+
 		buf = malloc(sizeof(bounded_buffer));
 		bounded_buffer_init(buf, );
 
@@ -158,7 +169,7 @@ void *producer (void *ptr)
 		// add nextp to buffer
 		signal(mutex);
 		signal(full);
-	}while (TRUE);
+	}while (true);
 }
 
 //comsumer thread
@@ -175,5 +186,10 @@ void *consumer(void *ptr)
 
 		// consume the item in nextc
 
-	}while (TRUE);
+	}while (true);
+}
+
+void Calcuate()
+{
+
 }
