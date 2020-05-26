@@ -23,8 +23,8 @@ int m[50][50];
 int Ncity = 0; //Number of cities
 int subtask = 0; //Number of subtasks processed so far
 int c_route = 0; //Number of checked routes
-int path[17] ;
-int used[17] ;
+int path[50] ;
+int used[50] ;
 int length = 0 ;
 int min = -1 ;
 
@@ -236,32 +236,35 @@ void write_result()
 //producer thread
 void *producer (void *ptr)
 {
-	do{
-		// produce an item in nextp
-		wait(empty);
-		wait(mutex);
-		
-		// add nextp to buffer
-		signal(mutex);
-		signal(full);
-	}while (true);
+	char msg[128] ;
+	pthread_t tid ;
+	int i ;
+	
+	tid = pthread_self() ;
+	for (i = 0 ; i < 10 ; i++) {
+		snprintf(msg, 128, "(%ld,%d)", (unsigned long) tid, i) ;
+		bounded_buffer_queue(buf, strdup(msg)) ;
+	}
+	return 0x0 ;
+	
 }
 
 //consumer thread
 void *consumer(void *ptr)
 {
-	do{
-		wait(full);
-		wait(mutex);
+	pthread_t tid ;
+	char * msg ; 
+	int i ;
 
-		// remove an item from buffer to nextc
+	tid = pthread_self() ;
 
-		signal(mutex);
-		signal(empty);
-
-		// consume the item in nextc
-
-	}while (true);
+	for (i = 0 ; i < 10 ; i++) {
+		msg = bounded_buffer_dequeue(buf) ;
+		if (msg != 0x0) {
+			printf("[%ld] reads %s\n", (unsigned long) tid, msg) ;
+			free(msg) ;
+		}
+	}
 }
 
 int Calcuate_route(int Ncity)
@@ -269,16 +272,16 @@ int Calcuate_route(int Ncity)
 	int i;
 
 	if (idx == Ncity) {
-		length += m[path[16]][path[0]] ;
+		length += m[path[Ncity-1]][path[0]] ;
 		if (min == -1 || min > length) {
 			min = length ;
 
 			printf("%d (", length) ;
-			for (i = 0 ; i < 17 ; i++) 
+			for (i = 0 ; i < Ncity ; i++) 
 				printf("%d ", path[i]) ;
 			printf("%d)\n", path[0]) ;	
 		}
-		length -= m[path[16]][path[0]] ;
+		length -= m[path[Ncity-1]][path[0]] ;
 	}
 	else {
 		for (i = 0 ; i < Ncity ; i++) {
@@ -292,13 +295,13 @@ int Calcuate_route(int Ncity)
 			}
 		}
 	}	
-	return broute;
+	return length;
 }
 
-int Calcualte_length(int Ncity)
+int Calcualte_length(int length)
 {
-
-	return blength;
+	if(blength > length) return length;
+	else return blength;
 }
 
 //Interactive user command
