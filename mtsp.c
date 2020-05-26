@@ -19,6 +19,8 @@ int n_route = 0; // the total number of route
 int broute = 0; // best route
 int blength = 0; // best length
 bool terminate = false;//termination argument
+int m[50][50];
+int Ncity = 0; //Number of cities
 
 typedef struct {
 	pthread_cond_t queue_cv ;
@@ -82,15 +84,21 @@ bounded_buffer_dequeue(bounded_buffer * buf)
 
 //Input
 //main thread
-int main(char *argv[], int argc) /*./mstp gr17.tsp 8*/
+int main(int argc, char *argv[]) /*./mstp gr17.tsp 8*/
 {
 	//argv is a filr name of a TSP instance data 
 	//argc is the initial number of comsumer thread
 	
-	// if the initial number is larger than 8
-	if (argc > 8) printf("The limit of the consumer thread is 8, please try again\n"); 		
-	//initial number is smaller than 9
-	else {
+	// the initial number should be smaller than 8
+	if (argc < 2) printf("Input filename and Number of consumer thread.\nThe limit of the consumer thread is 8, please try again\n"); 		
+	if(argc == 2) {
+		int num1, num2 = 0;
+
+		//get the number of cities
+		num1 = argv[1][2] - '0';
+		num2 = argv[1][3] - '0';
+		city_num = num1*10 + num2;
+		
 		pthread_t prod; //producer thread
 		pthread_t cons[argc]; //comsumer thread
 		int i,j = 0; //for the loop
@@ -104,8 +112,8 @@ int main(char *argv[], int argc) /*./mstp gr17.tsp 8*/
 					fscanf(fp, "%d", &t);
 					m[i][j] = t;
 				}
-			}		
-
+			} fclose(fp);		
+		
 		buf = malloc(sizeof(bounded_buffer));
 		bounded_buffer_init(buf, );
 
@@ -121,7 +129,8 @@ int main(char *argv[], int argc) /*./mstp gr17.tsp 8*/
 		for (i = 0; i < argc; i++){
 			pthread_join(cons[i], 0x0);
 		}
-				
+		
+		//
 	}
 	exit(0);
 }
