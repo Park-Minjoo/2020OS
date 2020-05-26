@@ -90,8 +90,8 @@ int main(int argc, char *argv[]) /*./mstp gr17.tsp 8*/
 	//argc is the initial number of comsumer thread
 	
 	// the initial number should be smaller than 8
-	if (argc < 2) printf("Input filename and Number of consumer thread.\nThe limit of the consumer thread is 8, please try again\n"); 		
-	if(argc == 2) {
+	if (argc < 3) printf("Input filename and Number of consumer thread.\nThe limit of the consumer thread is 8, please try again\n"); 		
+	if(argc == 3) {
 		int num1, num2 = 0;
 
 		//get the number of cities
@@ -129,9 +129,55 @@ int main(int argc, char *argv[]) /*./mstp gr17.tsp 8*/
 		for (i = 0; i < argc; i++){
 			pthread_join(cons[i], 0x0);
 		}
+	
+		//following three commands via standard input given by user
 		
-		//
+		char line[100]; /*a line to be read from the terminal*/ 
+		int answer; /*an integer chosen by the user*/
+	
+		answer = -1; /* set answer to a value that falls through */
+		while (answer != 0) {
+			printf("Choose what you want:\n");
+			printf("[1] stat\n");
+			printf("[2] thread\n");
+			printf("[3] num N \n");
+			printf("[0] nothing\n");
+
+			fgets (line, size of(line), STDIN);/* read in a line */
+			sscanf (line, "%d", &answer);/* scan for the integer */	
+
+			if ((sscanf_result == 0) | (sscanf_result == EOF))
+			{
+				/* either a non-integer entered or an end-of-line */
+				printf ("\n *** You have to enter an integer! ***\n");
+				answer = -1; /* set answer to a value that falls through */
+			}
+			
+			switch(answer){	
+			  case 0:
+			   break;
+			  
+			  case 1://(1) stat
+			  //print 
+			  //the best solution up to the moment
+			  //tne number of checked routes 
+		          printf("The best route is %d\n", broute);
+		  	  printf("It's length is %d\n", blength);
+			
+			  case 2: //(2) threads
+			  //print the information
+			  //all consumer threads 
+			  //including thread ID, the number of subtasks processed, the number of checked routes in the current subtask
+			  int result;
+			  thread("Main");
+			  for (i = 0; i < argc; i++){
+				pthread_join(cons[i],(void*)&result);
+			  }	
+			
+			}
+		}
 	}
+	return Ncity;
 	exit(0);
 }
 
@@ -150,6 +196,7 @@ void consumer_signal_handler(int signum)
 void producer_signal_handler(int signum)
 {
 	if (signum == SIGINT) {//check the signal number is correct
+		write_result();
 		terminate = true ;
 	}
 }
@@ -164,8 +211,6 @@ void write_result()
 	printf("It's length is %d\n", blength);
 	printf("The total number of route is %d\n", n_route);
 }
-
-//Interactive user command
 
 //producer thread
 void *producer (void *ptr)
@@ -198,7 +243,26 @@ void *consumer(void *ptr)
 	}while (true);
 }
 
-void Calcuate()
+int Calcuate_route()
 {
 
+	return broute;
 }
+
+int Calcualte_length()
+{
+
+	return blength;
+}
+
+//Interactive user command
+
+//Get the thread information
+void *thread(void *name)
+{
+    pthread_t id;
+    id = pthread_self();  
+    printf("Thread %s id : %ud\n", (char*)name, (int)id);
+    printf("
+}
+
