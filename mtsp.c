@@ -23,6 +23,10 @@ int m[50][50];
 int Ncity = 0; //Number of cities
 int subtask = 0; //Number of subtasks processed so far
 int c_route = 0; //Number of checked routes
+int path[50] ;
+int used[50] ;
+int length = 0 ;
+int min = -1 ;
 
 typedef struct {
 	pthread_cond_t queue_cv ;
@@ -169,7 +173,8 @@ int main(int argc, char *argv[]) /*./mstp gr17.tsp 8*/
 			  case 2: //(2) threads
 			  //print the information
 			  //all consumer threads 
-			  //including thread ID, the number of subtasks processed, the number of checked routes in the current subtask
+			  //including thread ID, the number of subtasks processed
+			  //and  the number of checked routes in the current subtask
 			  int result;
 			  thread("Main");
 			  for (i = 0; i < argc; i++){
@@ -194,7 +199,7 @@ int main(int argc, char *argv[]) /*./mstp gr17.tsp 8*/
 		}
 	}
 	return Ncity;
-	exit(0);
+	write_result();
 }
 
 //Output
@@ -231,44 +236,72 @@ void write_result()
 //producer thread
 void *producer (void *ptr)
 {
-	do{
-		// produce an item in nextp
-		wait(empty);
-		wait(mutex);
-		
-		// add nextp to buffer
-		signal(mutex);
-		signal(full);
-	}while (true);
+	char msg[128] ;
+	pthread_t tid ;
+	int i ;
+	
+	tid = pthread_self() ;
+	for (i = 0 ; i < 10 ; i++) {
+		snprintf(msg, 128, "(%ld,%d)", (unsigned long) tid, i) ;
+		bounded_buffer_queue(buf, strdup(msg)) ;
+	}
+	return 0x0 ;
+	
 }
 
-//comsumer thread
+//consumer thread
 void *consumer(void *ptr)
 {
-	do{
-		wait(full);
-		wait(mutex);
+	pthread_t tid ;
+	char * msg ; 
+	int i ;
 
-		// remove an item from buffer to nextc
+	tid = pthread_self() ;
 
-		signal(mutex);
-		signal(empty);
-
-		// consume the item in nextc
-
-	}while (true);
+	for (i = 0 ; i < 10 ; i++) {
+		msg = bounded_buffer_dequeue(buf) ;
+		if (msg != 0x0) {
+			printf("[%ld] reads %s\n", (unsigned long) tid, msg) ;
+			free(msg) ;
+		}
+	}
 }
 
-int Calcuate_route()
+int Calcuate_route(int Ncity)
 {
+	int i;
 
-	return broute;
+	if (idx == Ncity) {
+		length += m[path[Ncity-1]][path[0]] ;
+		if (min == -1 || min > length) {
+			min = length ;
+
+			printf("%d (", length) ;
+			for (i = 0 ; i < Ncity ; i++) 
+				printf("%d ", path[i]) ;
+			printf("%d)\n", path[0]) ;	
+		}
+		length -= m[path[Ncity-1]][path[0]] ;
+	}
+	else {
+		for (i = 0 ; i < Ncity ; i++) {
+			if (used[i] == 0) {
+				path[idx] = i ;
+				used[i] = 1 ;
+				length += m[path[idx-1]][i] ;
+				_travel(idx+1) ;
+				length -= m[path[idx-1]][i] ;
+				used[i] = 0 ;
+			}
+		}
+	}	
+	return length;
 }
 
-int Calcualte_length()
+int Calcualte_length(int length)
 {
-
-	return blength;
+	if(blength > length) return length;
+	else return blength;
 }
 
 //Interactive user command
