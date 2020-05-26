@@ -175,7 +175,21 @@ int main(int argc, char *argv[]) /*./mstp gr17.tsp 8*/
 			  for (i = 0; i < argc; i++){
 				pthread_join(cons[i],(void*)&result);
 			  }	
-			
+			  
+			  case 3: //(3) num N
+			  //change the number of consumer threads
+			  int n; //change the consumer thread
+			  scanf("%d", n);
+			  for (i = 0; i < argc; i++){
+			  	pthread_cancel(cons[i]);//stop consumer thread
+				sleep(5);
+				argc = n;
+				//exit after join
+				exit(1);	
+			  } 
+			  for (i = 0; i < argc; i++) {
+				pthread_create(&(cons[i]), 0x0, consumer, 0x0) ;
+		    	  }  
 			}
 		}
 	}
