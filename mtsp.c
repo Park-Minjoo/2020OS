@@ -23,6 +23,10 @@ int m[50][50];
 int Ncity = 0; //Number of cities
 int subtask = 0; //Number of subtasks processed so far
 int c_route = 0; //Number of checked routes
+int path[17] ;
+int used[17] ;
+int length = 0 ;
+int min = -1 ;
 
 typedef struct {
 	pthread_cond_t queue_cv ;
@@ -169,7 +173,8 @@ int main(int argc, char *argv[]) /*./mstp gr17.tsp 8*/
 			  case 2: //(2) threads
 			  //print the information
 			  //all consumer threads 
-			  //including thread ID, the number of subtasks processed, the number of checked routes in the current subtask
+			  //including thread ID, the number of subtasks processed
+			  //and  the number of checked routes in the current subtask
 			  int result;
 			  thread("Main");
 			  for (i = 0; i < argc; i++){
@@ -194,7 +199,7 @@ int main(int argc, char *argv[]) /*./mstp gr17.tsp 8*/
 		}
 	}
 	return Ncity;
-	exit(0);
+	write_result();
 }
 
 //Output
@@ -242,7 +247,7 @@ void *producer (void *ptr)
 	}while (true);
 }
 
-//comsumer thread
+//consumer thread
 void *consumer(void *ptr)
 {
 	do{
@@ -259,13 +264,38 @@ void *consumer(void *ptr)
 	}while (true);
 }
 
-int Calcuate_route()
+int Calcuate_route(int Ncity)
 {
+	int i;
 
+	if (idx == Ncity) {
+		length += m[path[16]][path[0]] ;
+		if (min == -1 || min > length) {
+			min = length ;
+
+			printf("%d (", length) ;
+			for (i = 0 ; i < 17 ; i++) 
+				printf("%d ", path[i]) ;
+			printf("%d)\n", path[0]) ;	
+		}
+		length -= m[path[16]][path[0]] ;
+	}
+	else {
+		for (i = 0 ; i < Ncity ; i++) {
+			if (used[i] == 0) {
+				path[idx] = i ;
+				used[i] = 1 ;
+				length += m[path[idx-1]][i] ;
+				_travel(idx+1) ;
+				length -= m[path[idx-1]][i] ;
+				used[i] = 0 ;
+			}
+		}
+	}	
 	return broute;
 }
 
-int Calcualte_length()
+int Calcualte_length(int Ncity)
 {
 
 	return blength;
