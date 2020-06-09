@@ -1,0 +1,116 @@
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <stdlib.h>
+#include <dlfcn.h>
+#include <execinfo.h>
+#include <unistd.h>
+#include <sys/syscall.h>
+
+#define NUM_P 10
+#define NUM_R 10
+#define NUM_V NUM_P + NUM_R
+
+int arr[NUM_V][NUM_V];
+
+int V[NUM_V];
+
+int count_P = 0;
+int count_R = NUM_P;
+
+int add_P(int id){
+    if(count_P < NUM_P) V[count_P] = id;
+    return count_P++;
+}
+
+int add_R(int id){
+    if(count_R < NUM_V) V[count_R] = id;
+    return count_R++;
+}
+
+int find_P(int id){
+    for(int i = 0; i < count_P; i++){
+        if(V[i] == id) return i;
+    }
+    return add_P(id);
+}
+
+int find_R(int id){
+    for(int i = NUM_P; i < count_R; i++){
+        if(V[i] == id) return i;
+    }
+    return add_R(id);
+}
+
+void add_E(int proc, int res){
+    int i = find_P(proc);
+    int j = find_R(res);
+    printf("[%d, %d] Edge 생성\n", i, j);
+    arr[i][j] = 1;
+}
+
+void transpose_E(int proc, int res){
+    int i = find_R(res);
+    int j = find_P(proc);
+    printf("[%d, %d] Edge 삭제\n", j, i);
+    printf("[%d, %d] Edge 생성\n", i, j);
+    arr[j][i] = 0;
+    arr[i][j] = 1;
+}
+
+void release_E(int proc, int res){
+    int i = find_R(res);
+    int j = find_P(proc);
+    printf("[%d, %d] Edge 삭제\n", i, j);
+    arr[i][j] = 0;
+}
+
+int DFS(int i, int *visited){
+    for(int j = 0; j < NUM_V; j++){
+        if(arr[i][j]){
+            if(visited[j] == 1) return 1;
+
+            visited[j] = 1;
+            return DFS(j, visited);
+        }
+    }
+    return 0;
+}
+
+int isCycle(int proc){
+    int visited[NUM_V] = {0,};
+    int i = find_P(proc);
+    visited[i] = 1;
+    return DFS(i, visited);
+}
+
+int (*pthread_create_cp)(pthread_t *, const pthread_attr_t *, void *(*) (void *), void *);
+int (*pthread_mutex_init_cp)(pthread_mutex_t *restrict mutex, const pthread_mutexattr_t *restrictattr);
+int (*pthread_mutex_lock_cp)(pthread_mutex_t *mutex);
+int (*pthread_mutex_unlock_cp)(pthread_mutex_t *mutex);
+
+int pthread_mutex_lock(pthread_mutex_t *mutex){
+
+    pthread_mutex_lock_cp = dlsym(RTLD_NEXT, "pthread_mutex_lock") ;
+
+    int P = syscall(SYS_gettid);
+    int R = mutex;
+
+    add_E(P, R);
+    if(isCycle(P) == 1) printf("deadlock이요~\n");
+    if(mutex->__data.__owner == 0) transpose_E(P, R);
+
+    return pthread_mutex_lock_cp(mutex);
+}
+
+int pthread_mutex_unlock(pthread_mutex_t *mutex){
+
+    pthread_mutex_unlock_cp = dlsym(RTLD_NEXT, "pthread_mutex_unlock") ;
+
+    int P = syscall(SYS_gettid);
+    int R = mutex;
+
+    release_E(P, R);
+
+    return pthread_mutex_unlock_cp(mutex);
+}
+
